@@ -1,0 +1,454 @@
+/*
+  Stili specifici homepage (video hero, navbar glassy, pulsante audio)
+  Nota: qui gestisco il blocco dello scroll, la hero video full-screen,
+        la navbar in versione glassy (più trasparente in homepage)
+        e un piccolo toggle per l’audio.
+*/
+
+/* Quando voglio bloccare lo scroll della pagina intera
+   (es. durante il loader o transizioni iniziali) */
+html.homepage-lock {
+  overflow: hidden;   /* nascondo le scrollbar del documento */
+  height: 100%;       /* porto l’html all’altezza piena del viewport */
+}
+
+/* Stato “attivo” della homepage: fisso il body per
+   evitare qualsiasi scroll e shimmer dietro */
+body.homepage-active {
+  overflow: hidden !important;     /* blocco lo scroll sul body */
+  height: 100vh !important;        /* aggancio al viewport verticale */
+  position: fixed !important;      /* fisso il body per evitare ricalcoli layout */
+  inset: 0;                        /* equivalente a top/right/bottom/left:0 */
+  width: 100vw !important;         /* larghezza piena viewport */
+  background: transparent !important; /* sfondo trasparente: la hero fa da sfondo */
+}
+
+/* =========================
+   LOADER A PIENO SCHERMO
+   ========================= */
+
+/* Contenitore del loader che copre tutto lo schermo */
+.loader-container {
+  position: fixed;                 /* resta ancorato allo schermo */
+  top: 0; left: 0;                 /* copertura dall’angolo in alto a sinistra */
+  width: 100%; height: 100%;       /* copre l’intero viewport */
+  background: var(--bianco);       /* tela bianca finché carico */
+  display: flex;                   /* centro il contenuto facilmente */
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;                   /* sopra praticamente tutto */
+  transition: opacity .5s ease-out, visibility .5s ease-out; /* dissolvenza dolce */
+}
+
+/* Stato in cui nascondo il loader senza rimuoverlo subito dal DOM */
+.loader-container.fade-out {
+  opacity: 0;          /* svanisce */
+  visibility: hidden;  /* e diventa non interattivo */
+}
+
+/* Wrapper del contenuto del loader (logo + spinner) */
+.loader-content {
+  text-align: center;  /* allineo al centro per estetica */
+}
+
+/* Logo del loader con lieve “pulse” per dare vita alla schermata */
+.loader-logo {
+  width: 120px;
+  height: auto;             /* mantengo proporzioni */
+  margin-bottom: 2rem;      /* distacco dallo spinner */
+  animation: pulse 1.5s ease-in-out infinite; /* respiro visivo */
+}
+
+/* Spinner circolare molto semplice, a contrasto con il brand */
+.loader-spinner {
+  width: 60px; height: 60px;                 /* dimensione visibile ma non invadente */
+  border: 3px solid var(--sfondo-chiaro);    /* anello chiaro… */
+  border-top-color: var(--colore-brand-primario); /* …con top rosso che ruota */
+  border-radius: 50%;                         /* diventa un cerchio */
+  animation: spin 1s linear infinite;         /* rotazione costante */
+  margin: 0 auto;                             /* centrato sotto al logo */
+}
+
+/* Rotazione continua dello spinner */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Effetto “pulse” per il logo (leggero zoom e variazione opacità) */
+@keyframes pulse {
+  0%, 100% { transform: scale(1);   opacity: 1;   }
+  50%      { transform: scale(1.05); opacity: .8; }
+}
+
+/* ======================================
+   NAVBAR GLASSY FLOTANTE IN HOMEPAGE
+   ====================================== */
+
+/* Base della navbar glassy (valida ovunque, in homepage è più evidente) */
+.navbar {
+  --bs-navbar-padding-y: .8rem;  /* rispetto le var di Bootstrap */
+  background: rgba(255, 255, 255, .9) !important;   /* bianco semi-trasparente */
+  backdrop-filter: blur(20px);                      /* effetto vetro smerigliato */
+  -webkit-backdrop-filter: blur(20px);              /* prefisso per Safari */
+  border: 1px solid rgba(226, 232, 240, .25);       /* bordo tenue */
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, .15);  /* ombra soft e profonda */
+  transition: all .3s ease;                         /* transizione generica */
+  position: fixed !important;                       /* navbar flottante */
+  top: 20px; left: 20px; right: 20px;               /* “inset” laterali: stacco dai bordi */
+  width: auto;
+  border-radius: 28px;                              /* pill glassy */
+  z-index: 1030;                                    /* sopra i contenuti */
+}
+
+/* Variante più trasparente quando ho l’hero video dietro (effetto più “glass”) */
+.navbar.navbar-transparent {
+  /* Variante più trasparente sopra il video */
+  background: rgba(255, 255, 255, .2) !important;      /* aumento trasparenza */
+  backdrop-filter: blur(20px) saturate(180%);          /* spingo la saturazione */
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, .3);           /* bordo più chiaro (bianco) */
+  box-shadow: 0 8px 32px 0 rgba(255, 255, 255, .1);    /* ombra “chiara”, coerente col fondo */
+}
+
+/* Dimensioni del logo brand in navbar (evito immagini fuori scala) */
+.navbar-brand img {
+  width: 150px !important;
+  height: 45px !important;
+}
+
+/* Spaziature orizzontali tra le voci */
+.navbar .navbar-nav {
+  gap: 1.25rem;    /* aria tra i link per respirare meglio */
+}
+
+/* In versione trasparente, testo bianco con leggero text-shadow per leggibilità su video */
+.navbar.navbar-transparent .navbar-brand,
+.navbar.navbar-transparent .nav-link,
+.navbar.navbar-transparent .form-control,
+.navbar.navbar-transparent .input-group-text,
+.navbar.navbar-transparent .form-select {
+  color: #fff !important;                       /* bianco pieno */
+  font-weight: 400;                             /* peso normale: elegante */
+  text-shadow: 0 1px 1px rgba(0, 0, 0, .35);    /* bordino scuro per contrasto su fondi chiari */
+}
+
+/* Link attivo in versione trasparente: pill rossa con gradient e glass */
+.navbar.navbar-transparent .nav-link.active {
+  color: #fff !important; /* testo sempre leggibile */
+  background: linear-gradient(180deg, rgba(227, 6, 19, .88), rgba(183, 5, 17, .76)) !important; /* rosso→rosso scuro */
+  box-shadow: 0 16px 36px rgba(227, 6, 19, .45),
+              inset 0 0 0 1px rgba(255, 255, 255, .9);    /* bagliore + bordino interno chiaro */
+  backdrop-filter: blur(12px) saturate(170%);             /* pill “glass” */
+  -webkit-backdrop-filter: blur(12px) saturate(170%);
+  border-radius: 28px;                                    /* forma pill */
+  padding: .58rem 1.2rem;                                 /* click area confortevole */
+  font-weight: 600;                                       /* enfasi maggiore */
+  letter-spacing: .01em;                                  /* tracking minimo */
+  text-shadow: 0 1px 1px rgba(0, 0, 0, .25);              /* leggero rilievo sul rosso */
+}
+
+/* Hover sui link (non attivi) in navbar trasparente:
+   fondo bianco semi-trasparente, pill morbida */
+.navbar.navbar-transparent .nav-link:hover:not(.active) {
+  color: #fff !important;
+  background: rgba(255, 255, 255, .25);
+  border-radius: 12px;
+}
+
+/* Campi di input in navbar trasparente: mantenuti leggibili
+   (fondo e bordo schiariti, testo bianco) */
+.navbar.navbar-transparent .form-control,
+.navbar.navbar-transparent .input-group-text,
+.navbar.navbar-transparent .form-select {
+  background: rgba(255, 255, 255, .2) !important;
+  border-color: rgba(255, 255, 255, .3) !important;
+  color: #fff !important;
+}
+
+/* Placeholder bianco tenue per non sparire su video luminosi */
+.navbar.navbar-transparent .form-control::placeholder {
+  color: rgba(255, 255, 255, .85) !important;
+}
+
+/* Freccia della select in bianco (data-URI inline per evitare asset esterni) */
+.navbar.navbar-transparent .form-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='rgba(255,255,255,0.9)' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.75rem center !important;
+  background-size: 16px 12px !important;
+}
+
+/* Freccia scura quando la navbar NON è trasparente (contrasto su fondo chiaro) */
+.navbar:not(.navbar-transparent) .form-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='rgba(0,0,0,0.6)' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.75rem center !important;
+  background-size: 16px 12px !important;
+}
+
+/* =========================
+   HERO VIDEO FULL-SCREEN
+   ========================= */
+
+/* La hero occupa tutto il viewport, sta “sotto” la navbar */
+.hero {
+  position: fixed;        /* resta fissa dietro, crea l’effetto di pagina sopra */
+  top: 0; left: 0;        /* allineata al bordo superiore/sinistro */
+  width: 100vw; height: 100vh; /* pieno schermo */
+  display: flex; align-items: center; justify-content: center; /* centro eventuale overlay */
+  overflow: hidden;       /* taglio eventuali sbordi del video */
+  z-index: 0;             /* sta sotto al resto (navbar è più alta) */
+}
+
+/* Contenitore della home “attiva”
+   (serve per centrare i contenuti sopra la hero) */
+#home.active {
+  min-height: 100vh;      /* almeno l’altezza del viewport */
+  background: transparent;/* niente sfondo, si vede il video dietro */
+  display: flex; align-items: center; justify-content: center;
+  position: relative;     /* creo un contesto per gli overlay */
+  z-index: 1;             /* sopra la .hero (z-index:0) */
+}
+
+/* Wrapper del video */
+.video-container {
+  position: absolute;     /* riempio la .hero */
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  overflow: hidden;       /* sicurezza: nulla esce dai bordi */
+}
+
+/* Caso embed via iframe (es. YouTube): centro e mantengo rapporto 16:9
+   usando min-width/min-height calcolati rispetto al viewport */
+.video-container iframe {
+  position: absolute;
+  top: 50%; left: 50%;                     /* partenza dal centro */
+  width: 100vw; height: 100vh;             /* dimensione base a viewport */
+  transform: translate(-50%, -50%);        /* centratura perfetta */
+  min-width: 177.77vh; /* 100 * (16/9) = 177.77…  -> garantisce copertura orizzontale */
+  min-height: 56.25vw; /* 100 * (9/16) = 56.25    -> garantisce copertura verticale */
+  filter: brightness(.5) saturate(1.1);     /* scurisco un po’ il video e aumento leggermente i colori */
+  pointer-events: none;                     /* il video di sfondo non cattura click */
+}
+
+/* Caso video HTML5: stessa logica ma uso object-fit: cover per semplicità */
+.video-container video {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 100vw; height: 100vh;
+  transform: translate(-50%, -50%);
+  object-fit: cover;                        /* riempi tutto senza distorsioni */
+  filter: brightness(.5) saturate(1.1);     /* resa coerente con l’iframe */
+  pointer-events: none;                     /* non blocco l’interazione sopra */
+}
+
+/* Nascondo sottotitoli/tracce del video di sfondo:
+   evitano distrazioni e testo “a caso” in sovraimpressione */
+.video-container video::cue {
+  color: transparent !important;
+  background: transparent !important;
+  text-shadow: none !important;
+}
+
+/* Hack per alcuni WebKit: nasconde del tutto il rendering dei text track */
+.video-container video::-webkit-media-text-track-display {
+  display: none !important;
+}
+
+/* Overlay graduato sopra al video per migliorare il contrasto
+   (un po’ di rosso brand all’inizio + nero verso il fondo) */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;  /* copre tutta la hero */
+  background: linear-gradient(
+    135deg,
+    rgba(227, 6, 19, .15) 0%,   /* accenno brand in alto a sinistra */
+    rgba(0, 0, 0, .4) 50%,      /* centro più scuro per leggere i testi */
+    rgba(0, 0, 0, .7) 100%      /* in basso a destra più scuro ancora */
+  );
+  z-index: 1; /* sopra al video, sotto ai contenuti */
+}
+
+/* Contenuto della hero (titolo, testo, CTA) che sta sopra overlay */
+.hero-content {
+  position: relative;
+  z-index: 2;                          /* sopra al gradient */
+  text-align: center;
+  color: #fff;                         /* testi in bianco per contrasto */
+  padding: clamp(2rem, 5vw, 4rem);     /* respiro interno responsivo */
+  animation: fadeInUp 1s ease-out;     /* ingresso dolce verso l’alto */
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 100vh;                   /* centro verticalmente in viewport */
+}
+
+/* Titolo principale: tipografia impattante e leggibile su video */
+.hero h1 {
+  font-family: 'Poppins', sans-serif;  /* font di titolazione */
+  font-weight: 800;                    /* bello “bold” */
+  font-size: clamp(3rem, 6vw, 5rem);   /* dimensione fluida tra mobile e desktop */
+  letter-spacing: -.03em;              /* tracking leggermente negativo per compattezza */
+  margin-bottom: 1.5rem;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, .5); /* ombra per leggibilità su fondi chiari */
+  line-height: 1.1;                    /* stringo l’interlinea per un look compatto */
+}
+
+/* Sottotitolo: più leggero, ma con buona leggibilità */
+.hero p {
+  color: rgba(255, 255, 255, .95);     /* bianco quasi pieno */
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  font-weight: 300;                     /* più “light” del titolo */
+  margin-bottom: 3rem;
+  letter-spacing: .02em;                /* un filo di tracking per ariosità */
+  text-shadow: 0 2px 4px rgba(0, 0, 0, .5); /* rinforzo la leggibilità */
+}
+
+/* Barra overlay in fondo (social + copyright)
+   Trucchetto: wrapper non riceve eventi per non bloccare la pagina,
+   solo l’inner è cliccabile. */
+.hero-overlay {
+  position: absolute;
+  left: 0; right: 0; bottom: 20px;     /* ancorata in basso */
+  display: flex; align-items: center; justify-content: center;
+  z-index: 3;                           /* sopra a tutto il resto della hero */
+  pointer-events: none;                 /* ignora gli eventi… */
+}
+
+/* …mentre l’interno li ripristina per i link */
+.hero-overlay .overlay-inner {
+  pointer-events: auto;                 /* i link sono cliccabili qui */
+  color: rgba(255, 255, 255, .85);
+  background: rgba(255, 255, 255, .14);
+  border: 1px solid rgba(255, 255, 255, .35);
+  backdrop-filter: blur(10px) saturate(160%);     /* mini-pill glassy */
+  -webkit-backdrop-filter: blur(10px) saturate(160%);
+  border-radius: 999px;                 /* pill extra tonda */
+  padding: .5rem .9rem;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .25);
+  display: inline-flex; align-items: center; gap: .5rem; /* icone + testo affiancati */
+}
+
+/* Link nell’overlay: animazione minima e leggibile */
+.hero-overlay a {
+  color: rgba(255, 255, 255, .9) !important;
+  text-decoration: none;
+  transition: transform .15s ease, opacity .15s ease;
+}
+.hero-overlay a:hover {
+  transform: translateY(-1px); /* micro-lift */
+  opacity: 1;                  /* piena opacità in hover */
+}
+
+/* =========================
+   CTA HOMEPAGE
+   ========================= */
+
+/* Spingo leggermente in basso il contenuto per dare spazio alla CTA */
+body.homepage-active .hero-content {
+  justify-content: center;
+  padding-bottom: clamp(2rem, 6vh, 5rem);
+}
+
+/* Pulsanti nella hero con raggio più “button-like” (meno pill) */
+body.homepage-active .hero-content .btn {
+  border-radius: 8px;
+}
+
+/* Titolo alternativo “glassy” (in realtà solo un look, senza box) */
+.hero-title-glassy {
+  font-family: 'Bebas Neue', 'Poppins', sans-serif; /* font di impatto */
+  font-weight: 800;
+  font-size: clamp(2rem, 6vw, 4rem);
+  line-height: 1.15;
+  letter-spacing: .02em;
+  color: #fff;
+  padding: 0; margin: 0 0 1rem;      /* reset + margine sotto */
+  border-radius: 0;
+  background: transparent !important; /* nessun box glassy, solo testo */
+  border: 0 !important;
+  box-shadow: none !important;
+  text-shadow: 0 8px 24px rgba(0, 0, 0, .45),
+               0 2px 6px rgba(0, 0, 0, .35); /* doppia ombra per profondità */
+}
+
+/* Wrapper CTA per distanziarla dal testo */
+.hero-content .cta-wrap {
+  margin-top: clamp(1.25rem, 3vh, 2.25rem);
+}
+
+/* Bottone principale “glassy” ma in realtà pieno sul brand */
+.btn-glassy {
+  color: #fff !important;
+  background-color: var(--colore-brand-primario) !important; /* fill rosso */
+  background-image: none !important;                         /* niente gradient */
+  border: 1px solid var(--colore-brand-primario) !important; /* bordo coerente */
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .18);                /* ombra “call-to-action” */
+}
+.btn-glassy:hover {
+  background-color: var(--colore-brand-primario-scuro) !important;
+  border-color: var(--colore-brand-primario-scuro) !important;
+  transform: translateY(-2px);                               /* micro-lift tattile */
+  box-shadow: 0 16px 36px rgba(0, 0, 0, .22);
+}
+.btn-glassy:active {
+  transform: translateY(0);                                  /* torna giù in active */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .18);
+}
+
+/* =========================
+   TOGGLE AUDIO (float glassy)
+   ========================= */
+
+.audio-toggle {
+  position: fixed;                 /* sempre visibile in basso a destra */
+  right: 2rem; bottom: 2rem;
+  width: 52px; height: 52px;       /* click area comoda */
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; cursor: pointer;
+  border-radius: 50%;              /* tondo pieno */
+  background: rgba(255, 255, 255, .2);      /* glassy */
+  border: 1px solid rgba(255, 255, 255, .35);
+  backdrop-filter: blur(10px) saturate(160%);
+  -webkit-backdrop-filter: blur(10px) saturate(160%);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .25);
+  z-index: 1100;                   /* sopra la navbar (1030) */
+}
+.audio-toggle:hover {
+  background: rgba(255, 255, 255, .3);      /* un filo più chiaro in hover */
+}
+
+/* =========================
+   RESPONSIVE TWEAKS HERO
+   ========================= */
+
+@media (max-width: 991.98px) {
+  /* In navbar, gli input dentro .input-group diventano full-width e leggibili */
+  .navbar .input-group .form-control {
+    min-width: 0;
+    width: 100%;
+    margin-top: .5rem;    /* separazione dai vicini in colonna */
+    max-width: none;      /* rimuovo eventuali limiti */
+  }
+
+  /* Alzo un po’ il pulsante audio per non sovrapporsi al footer mobile */
+  .audio-toggle { bottom: 4.5rem; }
+
+  .hero { min-height: 70vh; }      /* su tablet/phone la hero può essere meno alta */
+
+  .hero h1 { font-size: 2.5rem; }  /* titolo ridotto per schermi medi */
+}
+
+@media (max-width: 575.98px) {
+  /* Su schermi molto piccoli alzo ancora il toggle audio */
+  .audio-toggle { bottom: 5rem; }
+
+  .hero h1 { font-size: 2rem; }    /* titolo più compatto */
+
+  .hero p { font-size: 1.1rem; }   /* e sottotitolo proporzionato */
+
+  /* Input un filo più piccoli per evitare overflow */
+  .navbar .input-group .form-control {
+    font-size: .85rem;
+  }
+}

@@ -1,0 +1,203 @@
+/*
+  "Chi siamo" (About) — foglio stile CSS
+  Autore: Flavio Gezzi
+
+/* =========================
+   VARIABILI DI TEMA (tonde)
+   ========================= */
+:root {
+  /* Tempi e curve centralizzati per avere transizioni coerenti in tutto il file. */
+  --durata-transizione-rapida: 0.2s; /* 200ms: rapido ma non brusco */
+  --curva-transizione: ease;         /* curva semplice */
+
+  /* Dimensioni ricorrenti che uso spesso, rese “tonde” per memorizzarle facilmente. */
+  --raggio-card: 15px;                 /* raggio standard per card */
+  --dimensione-contenitore-icona: 55px;/* contenitore icona: dimensione comoda su desktop e mobile */
+  --dimensione-icona: 30px;            /* icona interna: 30px è leggibile e non troppo invadente */
+
+  /* Ombra principale del tema, usata per hover/active della navbar e delle card. */
+  --ombra-grande: 0 12px 24px rgba(0, 0, 0, 0.1);
+
+  /* Scala di spaziature verticali che mi torna comoda su varie sezioni. */
+  --spazio-piccolo: 2rem;  /* base (circa 32px) */
+  --spazio-medio: 3rem;    /* intermedia (circa 48px) */
+  --spazio-grande: 4rem;   /* grande (circa 64px) */
+
+  /* Spazitura verticale della griglia: tengo mobile/desktop separati con due variabili. */
+  --spaziatura-verticale-base: 2rem;   /* base (mobile) */
+  --spaziatura-verticale-grande: 3rem; /* grande (desktop) */
+}
+
+/* =================================
+   NAVBAR (About) — glassy style
+   ================================= */
+
+/* Scelgo uno sfondo quasi pieno per garantire contrasto. L’ombra separa visivamente la navbar dal contenuto sottostante. */
+.about-page .navbar {
+  background: rgba(255, 255, 255, 0.1); /* quasi pieno per garantire contrasto */
+  border: 1px solid;  
+  border-color: rgba(0, 0, 0, 0.1); /* bordo molto leggero per definire il contorno */
+  box-shadow: var(--ombra-grande); /* ombra più pronunciata per separare la navbar dal contenuto sottostante */
+}
+
+
+.about-page .navbar {
+    -webkit-backdrop-filter: blur(15px) saturate(150%);  
+    backdrop-filter: blur(15px) saturate(150%); /* numeri tondi per leggibilità */
+  }
+
+/* =========================
+   FOOTER (link contatti)
+   ========================= */
+
+/* Mantengo il brand sui link e uso la sottolineatura. */
+.about-page footer a.link-primary {
+  color: var(--colore-brand-primario); 
+  text-decoration-color: color-mix(in oklab, var(--colore-brand-primario) 40%, transparent); /* sottolineatura più chiara del testo facendo un mix al 60% del colore brand con il trasparente */
+}
+
+/* In hover porto la decorazione sul currentColor per evidenza. */
+.about-page footer a.link-primary:hover {  
+  color: var(--colore-brand-primario-scuro); 
+  text-decoration-color: currentColor;
+}
+
+/* =========================
+   SCHEDE STATISTICHE (cards)
+   ========================= */
+
+/* Card compatte e reattive: transizioni uniformi e uno spostamento allo hover. Uso will-change per far "svegliare" il browser quando alzo la card di 2px. */
+.mini-scheda {
+  border: 1px solid var(--colore-bordo); /* bordo leggero per definire il contorno */
+  border-radius: var(--raggio-card); /* angoli tondi */
+  background: #fff; /* sfondo bianco per contrasto con il testo */
+  transition:
+    transform var(--durata-transizione-rapida) var(--curva-transizione), 
+    box-shadow var(--durata-transizione-rapida) var(--curva-transizione),
+    border-color var(--durata-transizione-rapida) var(--curva-transizione);
+  will-change: transform; /* suggerisco al browser di ottimizzare per trasformazioni */
+}
+
+
+
+/* Tipografia delle statistiche:
+   - il numero deve emergere
+   - l’etichetta resta discreta ma leggibile */
+.stat-numero {
+  font-weight: 800;
+  font-size: clamp(1.5rem, 4vw, 2rem); /* scala semplice e tonda da mobile a desktop */
+  color: var(--colore-brand-primario); 
+}
+
+/* Etichetta sotto il numero, più piccola e attenuata */
+.stat-etichetta {
+  color: var(--colore-testo-attenuato); /* colore attenuato per non competere con il numero */
+  font-weight: 600; 
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 0.8rem;
+}
+
+/* =========================================
+   ICONA / MICRO-EFFETTI (contenitore icone)
+   ========================================= */
+
+/* Questo wrapper mi consente di centrare qualsiasi icona (font o SVG)
+   e applicare micro-movimenti senza spostare il layout. */
+.iconic-ring {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--dimensione-contenitore-icona);
+  block-size: var(--dimensione-contenitore-icona);
+  margin-inline: auto;  /* centratura orizzontale nel contenitore */
+  padding: 0;
+  border: 0;
+  border-radius: 0;     /* se mi serve rotondo diventa 50% */
+  background: transparent;
+  box-shadow: none;
+  color: var(--colore-brand-primario);
+  line-height: 0;       /* evito extra-space verticali */
+  transition: transform var(--durata-transizione-rapida) var(--curva-transizione);
+}
+
+/* Normalizzo le icone basate su font per evitare rientri strani. */
+.iconic-ring i {
+  line-height: 1;
+  display: block;
+}
+
+/* Per le Bootstrap Icons mantengo la dimensione tonda via variabile. */
+.iconic-ring .bi { font-size: var(--dimensione-icona); }
+
+/* Idem per gli SVG inline; inline/block-size mi evita il coupling con il box model. */
+.iconic-ring svg {
+  inline-size: var(--dimensione-icona);
+  block-size: var(--dimensione-icona);
+  display: block;
+}
+
+/* Micro-shift dell’icona solo su device con puntatore preciso. */
+@media (hover: hover) and (pointer: fine) {
+  .hover-shadow:hover .iconic-ring {
+    transform: translateY(-1px);
+  }
+}
+
+/* Evidenzio chiaramente quando l’icona è focusabile (es. link/bottone). */
+.iconic-ring:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--colore-brand-primario) 55%, white);
+  outline-offset: 2px;
+}
+
+/* =========================
+   SPAZIATURE & LAYOUT
+   ========================= */
+
+/* Wrapper rotondo per avatar/icone:
+   uso aspect-ratio per non impazzire con height/width in responsive. */
+#about .about-icon {
+  inline-size: 48px;
+  min-inline-size: 48px;  /* evito che si stringa in flex/grid */
+  aspect-ratio: 1 / 1;
+  display: inline-grid;
+  place-items: center;     /* centratura perfetta */
+  border-radius: 50%;   /* rotondo */
+  padding: 0; 
+  line-height: 0; 
+  box-sizing: border-box;
+  overflow: hidden;        /* ritaglio eventuale overflow delle immagini */
+}
+
+/* Utility rotonda: la lascio per compatibilità con markup esistente. */
+#about .rounded-circle { border-radius: 50%; }
+
+/* Spaziatura verticale tra i fratelli nella colonna principale:
+   clamp mi evita tre media query e la progressione è fluida. */
+#about .col-lg-10 > * + * {
+  margin-block-start: clamp(var(--spazio-piccolo), 1rem + 2vw, var(--spazio-grande));
+}
+
+/* Spaziatura verticale della griglia in About: tengo un base (mobile) e lo aumento su desktop. */
+#about .row.g-4 { --bs-gutter-y: var(--spaziatura-verticale-base); }
+@media (min-width: 992px) {
+  #about .row.g-4 { --bs-gutter-y: var(--spaziatura-verticale-grande); }
+}
+
+/* Mantengo la semantica delle utility Bootstrap: qui metto l’!important (coerente con il framework) ma allineo il valore alla mia scala. */
+#about .mt-5 {
+  margin-top: var(--spazio-grande) !important;
+}
+
+/* =========================
+   ACCESSIBILITÀ (motion)
+   ========================= */
+
+/* Media queries per vedere se l'utente ha impostato la riduzione delle animazioni nel browser le blocco. */
+@media (prefers-reduced-motion: reduce) {
+  .mini-scheda,
+  .iconic-ring { transition: none; }
+
+  .mini-scheda:hover,
+  .hover-shadow:hover .iconic-ring { transform: none; }
+}

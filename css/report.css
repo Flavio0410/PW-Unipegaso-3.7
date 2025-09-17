@@ -1,0 +1,89 @@
+/*
+  Rifiniture specifiche pagina Report
+  Sintassi espansa e commentata; nessun cambiamento visivo.
+  Qui la navbar è più opaca per leggibilità su fondo chiaro.
+*/
+
+/* Navbar nella pagina Report:
+   voglio un look più opaco rispetto alla homepage,
+   perché i contenuti di Report stanno per lo più su fondi chiari e densi di info. */
+.report-page .navbar {
+  background: rgba(255, 255, 255, .98) !important;   /* quasi opaca: massima leggibilità testo/icone */
+  border-color: rgba(0, 0, 0, .08) !important;       /* bordo leggerissimo per separare dallo sfondo */
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .10);        /* ombra profonda ma morbida (coerente col tema) */
+  backdrop-filter: blur(18px) saturate(160%);        /* effetto glass appena percettibile */
+  -webkit-backdrop-filter: blur(18px) saturate(160%);/* prefisso per Safari */
+}
+
+/* Link contatti footer in rosso brand:
+   coerenti con la palette, mantengo !important per battere stili Bootstrap. */
+.report-page footer a.link-primary {
+  color: var(--colore-brand-primario) !important;     /* rosso brand */
+}
+
+.report-page footer a.link-primary:hover {
+  color: var(--colore-brand-primario-scuro) !important; /* rosso scuro in hover */
+}
+
+/* Spaziature generali della sezione elenco report:
+   uso clamp per rendere la sezione ariosa su desktop,
+   ma senza penalizzare il mobile (valori min/max + 9vw intermedi). */
+.report-page .section {
+  padding-top: clamp(5rem, 9vw, 7rem);      /* parte da 5rem, sale fino a 7rem in base alla larghezza */
+  padding-bottom: clamp(4.5rem, 9vw, 7rem); /* fondo leggermente più raccolto su view più strette */
+}
+
+/* Griglia dell’elenco report (#reportList):
+   agisco sui gutter Bootstrap tramite CSS custom properties.
+   --bs-gutter-x: spazio orizzontale tra colonne
+   --bs-gutter-y: spazio verticale tra righe */
+.report-page #reportList {
+  --bs-gutter-x: 2rem;   /* respiro orizzontale tra le card */
+  --bs-gutter-y: 2rem;   /* respiro verticale tra le righe */
+  margin-top: .5rem;     /* stacco leggero dalla sezione/heading sopra */
+}
+
+/* Altezze uniformi delle card su desktop:
+   imposto min-height diversi per breakpoint per dare omogeneità visiva all’elenco.
+   Ho ridotto di ~10% rispetto a versioni precedenti per compattare un po’. */
+@media (min-width: 576px) {
+  .report-page .report-item .card { min-height: 324px; }  /* su ≥576px, card più basse ma regolari */
+}
+
+@media (min-width: 992px) {
+  .report-page .report-item .card { min-height: 342px; }  /* su ≥992px, un filo più alte per contenuti più larghi */
+}
+
+/* Card dei report:
+   qui non tocco la resa base (che eredita dagli stili globali),
+   aggiungo solo un “hook” coerente per il bordo/raggio/transizioni. */
+.report-card {
+  border: 1px solid var(--colore-bordo);                 /* bordo tenue del tema */
+  border-radius: 16px;                                    /* angoli morbidi coerenti col resto del sito */
+  transition: transform .18s ease,                        /* micro-lift in hover */
+              box-shadow .18s ease,                       /* ombra che aumenta in hover */
+              border-color .18s ease;                     /* accenno di brand sul bordo in hover */
+}
+
+/* Effetto hover:
+   sollevo la card di 4px, aumento l’ombra, e coloro il bordo con una tinta brand molto leggera. */
+.report-card:hover {
+  transform: translateY(-4px);                            /* leggero “lift” */
+  box-shadow: var(--ombra-media);                         /* ombra intermedia (definita nel tema) */
+  border-color: rgba(227, 6, 19, .35);                    /* richiamo al rosso brand, non invasivo */
+}
+
+/* Spaziatura interna della card:
+   1.25rem mi funziona bene con i contenuti tipici (titolo, meta, snippet). */
+.report-card .card-body {
+  padding: 1.25rem;
+}
+
+/* Badge dentro le card report:
+   li voglio “soft”, coerenti con superfici chiare, e con testo scuro ben leggibile.
+   Mantengo !important per superare eventuali utilities Bootstrap. */
+.report-card .badge {
+  background: var(--sfondo-chiaro) !important;           /* sfondo chiaro per non rubare la scena */
+  color: var(--colore-testo) !important;                 /* testo scuro, alto contrasto */
+  border: 1px solid var(--colore-bordo) !important;      /* bordino leggero per definizione */
+}

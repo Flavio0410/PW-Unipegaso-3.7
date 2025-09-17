@@ -1,0 +1,385 @@
+/*
+  Codice CSS di base per l'intero sito
+  Autore: Flavio Gezzi
+*/
+
+/* VARIABILI DI TEMA */
+
+:root {
+  /* Palette brand */
+  --colore-brand-secondario: #0b3ea0;     /* blu inchiostro (secondario) */
+  --colore-brand-primario:   #e30613;     /* rosso principale Webuild */
+  --colore-brand-primario-scuro: #b70511; /* rosso scuro per hover/active */
+
+  /* Testi e superfici */
+  --colore-testo:           #0f172a;  /* testo principale (scuro) */
+  --colore-testo-attenuato: #64748b;  /* testo secondario/grigio */
+  --sfondo-chiaro:          #f8fafc;  /* superficie chiara */
+  --colore-bordo:           #e2e8f0;  /* bordi/separatori */
+  --bianco:                 #ffffff;  /* bianco puro */
+
+  /* Ombre predefinite (scale coerenti) */
+  --ombra-piccola:       0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --ombra-media:
+    0 4px 6px -1px rgb(0 0 0 / 0.10),
+    0 2px 4px -2px rgb(0 0 0 / 0.10);
+  --ombra-grande:
+    0 10px 15px -3px rgb(0 0 0 / 0.10),
+    0 4px 6px -4px  rgb(0 0 0 / 0.10);
+  --ombra-molto-grande:
+    0 20px 25px -5px rgb(0 0 0 / 0.10),
+    0 8px 10px -6px  rgb(0 0 0 / 0.10);
+
+  /* Raggi standard per componenti */
+  --raggio:         12px; /* raggio standard per input, bottoni, pillole */
+  --raggio-grande:  16px; /* raggio più grande per card */
+}
+
+/* SFONDI DI BASE - Unifico html/body: stesso sfondo */
+
+html,
+body {
+  background: #fff; /* superficie neutra di base */
+}
+
+/* 
+   NAVBAR — FORM DI RICERCA
+   - Mobile: input full width
+   - Desktop: input più largo ma non invadente */
+
+/* Base (mobile-first): input a tutta larghezza, con piccolo margine sopra */
+.navbar .form-control {
+  min-width: 0;        /* reset per flexbox */
+  width: 100%;          /* sfrutta l’intera larghezza disponibile */
+  margin-top: .5rem;    /* spazio sopra per separarlo dagli altri elementi */
+}
+
+/* Desktop (≥992px): rendo l’input più largo e rimuovo il margine superiore */
+@media (min-width: 992px) {
+  .navbar .form-control {
+    min-width: 200px;   /* ampiezza minima per migliorarne l’usabilità */
+    width: auto;        /* lascia che la width si adatti al contenuto */
+    margin-top: 0;      /* allineamento verticale con gli altri elementi */
+  }
+}
+
+/*  NAVBAR — MOBILE
+   - Rimuove icona di ricerca e migliora spaziatura verticale */
+
+@media (max-width: 991.98px) {
+  /* Stack verticale ordinato con spazi coerenti */
+  .navbar .navbar-collapse.show {
+    display: flex !important; /* forza flex (override Bootstrap) */
+    flex-direction: column; 
+    align-items: stretch;
+    gap: .75rem;                 /* più aria tra blocchi */
+    padding-top: .5rem;
+    padding-bottom: .75rem;
+  }
+  /* Ricerca: a tutta larghezza, senza icona su mobile */
+  .navbar #siteSearchForm { width: 100%; margin: 0; } /* rimuove margini */
+  .navbar #siteSearchForm .input-group { width: 100%; flex-wrap: nowrap; } /* evita wrapping */
+  .navbar #siteSearchForm .input-group .form-control {
+    min-width: 0;
+    width: auto;
+    flex: 1 1 auto;              /* evita che l'icona mandi a capo */
+    border-top-right-radius: var(--raggio);
+    border-bottom-right-radius: var(--raggio);
+  }
+  .navbar #siteSearchForm .input-group-text { display: none; }
+  /* Selettore lingua su riga propria */
+  .navbar .ms-lg-2 { width: 100%; margin-left: 0 !important; }
+}
+
+/* CARD E BADGE GENERALI */
+
+.card {
+  border-radius: var(--raggio-grande);  /* unifico: 1rem = 16px */
+  border: 1px solid var(--colore-bordo);
+  transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease; /* transition mirata, non "all" */
+  background: var(--bianco); 
+  overflow: hidden;                    /* previene overflow su immagini/cover */
+}
+
+.card:hover {
+  transform: translateY(-4px);         /* piccola elevazione */
+  box-shadow: var(--ombra-grande);     /* ombra più marcata */
+  border-color: rgb(227 6 19 / .2);    /* richiamo al rosso brand */
+}
+
+.card .badge {                          /* badge all’interno delle card */
+  font-weight: 600;                     /* enfasi sullo stato/etichetta */
+}
+
+/* CTA in fondo: body flessibile spinge il footer verso il basso */
+.card.h-100 { display: flex; flex-direction: column; }
+.card .card-body { flex: 1 1 auto; display: flex; flex-direction: column; }
+.card .card-footer { margin-top: auto; }
+
+.card-body { padding: 1.5rem; }         /* padding confortevole */
+.card h3 {
+  font-weight: 600;
+  color: var(--colore-testo);
+  margin-bottom: .75rem;
+}
+
+/* Badge generici (fuori dalle card) */
+.badge {
+  font-weight: 500;         /* leggermente meno del 600 in-card */
+  font-size: .75rem;
+  padding: .25rem .5rem;
+  border-radius: 6px;
+}
+
+/* Variante light con buon contrasto su superfici chiare */
+.text-bg-light {
+  background-color: var(--sfondo-chiaro) !important;
+  color: var(--colore-testo-attenuato) !important;
+  border: 1px solid var(--colore-bordo) !important;
+}
+
+/* BOTTONI */
+
+.btn { border-radius: .75rem; } /* stile arrotondato coerente */
+
+.btn-primary {
+  /* Uso le variabili CSS di Bootstrap per tematizzare senza override pesanti */
+  --bs-btn-bg:             var(--colore-brand-primario);
+  --bs-btn-border-color:   var(--colore-brand-primario);
+  --bs-btn-hover-bg:       var(--colore-brand-primario-scuro);
+  --bs-btn-hover-border-color: var(--colore-brand-primario-scuro);
+
+  box-shadow: 0 1px 2px rgb(0 0 0 / .05); /* ombra delicata */
+  transition: transform .2s ease, box-shadow .2s ease; /* transizione mirata */
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px); /* micro spostamento */
+  box-shadow: 0 6px 16px rgb(0 0 0 / .15);
+}
+
+/*  NAVBAR — LINK ATTIVO (Glassy) */
+
+.navbar .nav-link.active {
+  color: #fff !important; /* priorità sul tema bootstrap */
+  /* Gradiente rosso leggermente trasparente per profondità */
+  background: linear-gradient(180deg, rgb(227 6 19 / .88), rgb(227 6 19 / .76)) !important;
+  /* Ombra esterna + sottile bordo interno per risalto */
+  box-shadow:
+    0 12px 28px rgb(227 6 19 / .40),
+    inset 0 0 0 1px rgb(255 255 255 / .22);
+  /* Effetto vetro */
+  -webkit-backdrop-filter: blur(10px) saturate(160%);
+  backdrop-filter:         blur(10px) saturate(160%);
+
+  border-radius: 28px;     
+  padding: .55rem 1.15rem; /* dimensioni confortevoli */
+  font-weight: 600;        /* maggiore enfasi */
+  letter-spacing: .01em;   /* tracking minimo */
+  text-shadow: 0 1px 1px rgb(0 0 0 / .15); /* migliora leggibilità su rosso */
+}
+
+.navbar .nav-link.active:hover {
+  /* gradiente più scuro in hover (secondo stop usa il rosso scuro) */
+  background: linear-gradient(180deg, rgb(227 6 19 / .92), rgb(183 5 17 / .80)) !important;
+}
+
+/*
+   NAVBAR — STATI “NON TRASPARENTE” - Colori di testo coerenti su superfici chiare */
+
+.navbar:not(.navbar-transparent) .navbar-brand,
+.navbar:not(.navbar-transparent) .nav-link {
+  color: #000 !important; /* testo scuro leggibile su fondo chiaro */
+}
+
+.navbar:not(.navbar-transparent) .nav-link.active {
+  color: #fff !important; /* link attivo resta bianco sul riquadro rosso */
+}
+
+/* NAVBAR — ASPETTO GENERALE (tutte le pagine) */
+
+.navbar {
+  --bs-navbar-padding-y: .8rem;         /* compatibilità con Bootstrap */
+  background: rgb(255 255 255 / .9) !important; /* superficie semi-trasparente */
+  -webkit-backdrop-filter: blur(20px);   /* effetto glass */
+  backdrop-filter:         blur(20px);  /* effetto glass */
+  border: 1px solid rgb(226 232 240 / .25); /* bordo tenue coerente con tema */
+  box-shadow: 0 8px 32px 0 rgb(31 38 135 / .15); /* profondità morbida */
+  transition: background .3s ease, box-shadow .3s ease, border-color .3s ease; /* transizione */
+  position: fixed !important; /* navbar flottante */
+  top: 20px; left: 20px; right: 20px; 
+  width: auto;
+  border-radius: 28px;
+  z-index: 1030;             /* sopra ai contenuti */
+}
+
+/* Brand: dimensioni logo controllate (evito immagini fuori scala) */
+.navbar-brand img {
+  width: 150px !important;
+  height: 45px !important;
+}
+
+/* Spaziature tra voci di menu (responsive) */
+.navbar .navbar-nav { gap: 1.25rem; }   /* default desktop: spazio ra link */
+@media (max-width: 990px) {
+  .navbar .navbar-nav { gap: .9rem; }   /* più spazio verticale tra le voci */
+}
+
+/* Link navbar: dimensioni/padding equilibrati */
+.navbar .nav-link {
+  font-size: 1.1rem;       /* leggermente sopra 1rem per leggibilità */
+  padding: .45rem .95rem;
+  border-radius: 20px;      /* leggero stondamento */
+}
+@media (max-width: 990px) {
+  .navbar .nav-link {
+    font-size: 1rem;
+    padding: .45rem .75rem; /* più compatti su mobile */
+  }
+}
+
+/* Toggler: bordo e icona sempre leggibili su navbar chiara */
+.navbar .navbar-toggler { border-color: rgb(0 0 0 / .25); }
+.navbar .navbar-toggler-icon {
+  /* icona hamburger scura via data-URI (evito asset esterni) */
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(0,0,0,0.75)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e"); /* icona scura per contrasto su navbar chiara */
+}
+
+/* Homepage mobile: toggler bianco per migliore contrasto  */
+@media (max-width: 991.98px) {
+  body.homepage-active .navbar .navbar-toggler { border-color: rgb(255 255 255 / .8); }
+  body.homepage-active .navbar .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255,255,255,0.9)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e"); /* icona chiara per contrasto su navbar scura */
+  }
+}
+
+/* Variante “non trasparente” (es. About/Report): superficie più piena */
+.navbar:not(.navbar-transparent) {
+  background: rgb(255 255 255 / .98) !important; /* quasi opaca per contenuti densi */
+  border-color: rgb(0 0 0 / .08) !important;     /* bordo più definito */
+  box-shadow: 0 12px 28px rgb(0 0 0 / .10);      /* ombra più intensa */
+}
+.navbar:not(.navbar-transparent) .nav-link:hover:not(.active) {
+  background: rgb(0 0 0 / .04);                  /* rettangolo chiaro in hover */
+}
+
+/* UTILITÀ E STRUTTURA*/
+
+.ratio { border: 1px dashed rgb(0 0 0 / .08); }  /* crea un contenitore con ratio fisso */
+
+/* SEZIONI PAGINA */
+
+/* Spaziatura verticale responsiva, margine top per staccare dalla navbar flottante */
+.section {
+  padding: clamp(3rem, 8vw, 6rem) 0;  /* aumenta su view più ampi */
+  margin-top: 120px;                  /* spazio per la navbar fixed */
+}
+
+/* Variante con sfondo sfumato leggero (non invadente) */
+.section-alt {
+  background: linear-gradient(
+    135deg,
+    var(--sfondo-chiaro) 0%,
+    rgb(248 250 252 / .5) 100%
+  );
+}
+
+/* FORM (input/select) */
+
+.form-control,
+.form-select {
+  border-radius: var(--raggio);
+  border: 1px solid var(--colore-bordo);
+  transition: border-color .2s ease, box-shadow .2s ease; /* evito "all" */
+  background-color: var(--bianco);
+  background-repeat: no-repeat;           /* per l’icona della select */
+  background-position: right .75rem center;
+  background-size: 16px 12px;
+}
+
+/* Stato focus: evidenzio con colore brand e alone */
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--colore-brand-primario);
+  box-shadow: 0 0 0 3px rgb(227 6 19 / .10);
+}
+
+/* In navbar non trasparente, i campi restano scuri e leggibili */
+.navbar:not(.navbar-transparent) .form-control,
+.navbar:not(.navbar-transparent) .input-group-text,
+.navbar:not(.navbar-transparent) .form-select {
+  color: black !important;
+  background: white !important;
+  border-color: var(--colore-bordo) !important;
+}
+.navbar:not(.navbar-transparent) .form-control::placeholder {
+  color: rgb(0 0 0 / .55) !important;
+}
+
+/* Select con freccia scura su navbar chiara */
+.navbar:not(.navbar-transparent) .form-select {
+  appearance: none;          /* reset nativo */
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='rgba(0,0,0,0.6)' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.75rem center !important;
+  background-size: 16px 12px !important;
+}
+
+/* FOOTER */
+
+footer {
+  border-top: 1px solid var(--colore-bordo); /* separatore visivo dalla pagina */
+  background: var(--sfondo-chiaro);          /* tinta chiara coerente */
+  margin-top: auto;                          /* footer “spinto” in basso in layout flessibili */
+  position: relative;
+  z-index: 10;                                /* sopra a elementi di fondo */
+}
+
+/* Variante per homepage dove non deve comparire */
+footer.footer-hidden { display: none !important; }
+
+/* ANIMAZIONI (micro entrate) */
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Utility: fade-in morbido (usato su elementi chiave) */
+.fade-in { animation: fadeIn .6s ease-out; }
+
+/* PULSANTE "TORNA SU" */
+
+.scroll-to-top {
+  position: fixed;
+  bottom: 2rem; right: 2rem;      /* ancorato in basso a destra */
+  width: 50px; height: 50px;      /* dimensioni click area comode */
+  background: var(--colore-brand-primario);
+  color: #fff;
+  border: none;
+  border-radius: 50%;             /* forma circolare */
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--ombra-grande);
+  opacity: 0;                     /* nascosto di default */
+  transform: translateY(20px);    /* leggermente fuori quadro */
+  transition: opacity .3s ease, transform .3s ease, background .3s ease; /* transizioni mirate */
+  z-index: 1000;
+  cursor: pointer;
+}
+
+/* Stato visibile: appare con transizione */
+.scroll-to-top.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Hover: scurisco e do un micro-lift */
+.scroll-to-top:hover {
+  background: var(--colore-brand-primario-scuro);
+  transform: translateY(-2px);
+}

@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <!-- set di caratteri UTF-8: evito guai con accenti e simboli -->
+  <meta charset="utf-8" />
+  <!-- viewport responsive: fondamentale su mobile per avere scala corretta -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- titolo della pagina; data-i18n mi permette di sostituirlo via i18n.js -->
+  <title data-i18n="meta.title">Webuild – Report di sostenibilità</title>
+
+  <!-- CSS di Bootstrap + set di icone -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Google Fonts: Inter per testo, Poppins per titoli (coerente col resto del sito) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- fogli CSS locali: base globale + specifico della pagina report -->
+  <link href="../css/base.css" rel="stylesheet">
+  <link href="../css/report.css" rel="stylesheet">
+
+  <!-- Favicons multi-piattaforma; mantengo vari formati per compatibilità -->
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/favico/apple-touch-icon.png">
+  <link rel="apple-touch-icon" href="../assets/favico/apple-touch-icon.png">
+  <link rel="apple-touch-icon-precomposed" href="../assets/favico/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/favico/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/favico/favicon-16x16.png">
+  <link rel="manifest" href="../assets/favico/site.webmanifest">
+  <link rel="shortcut icon" href="../assets/favico/favicon.ico">
+
+  <!-- colore della barra su Android/Windows (PWA-like): switch in base al tema -->
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0b0d12" media="(prefers-color-scheme: dark)">
+  <!-- nome breve quando salvata su Home iOS -->
+  <meta name="apple-mobile-web-app-title" content="Webuild">
+</head>
+
+<body class="report-page">
+  <!-- SCROLL TO TOP BUTTON
+       Piccolo utilità che appare dopo lo scroll; la logica è in js/common.js -->
+  <button class="scroll-to-top" id="scrollToTop" aria-label="Torna in alto">
+    <!-- icona solo decorativa; il testo alternativo lo svolge aria-label -->
+    <i class="bi bi-arrow-up"></i>
+  </button>
+
+  <!-- NAVBAR: barra condivisa; evidenzio la voce attuale via JS (aggiungendo .active al link) -->
+  <nav class="navbar navbar-expand-lg fixed-top" id="mainNavbar">
+    <div class="container-fluid px-4">
+      <!-- brand: link alla home con logo; width/height fissi evitano layout shift -->
+      <a class="navbar-brand d-flex align-items-center gap-2" href="../index.html">
+        <img src="../assets/webuildcover.svg.png" alt="Webuild" width="150" height="45" style="object-fit:contain"/>
+      </a>
+
+      <!-- toggler per aprire/chiudere il menu su schermi piccoli -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- contenitore collassabile del menu -->
+      <div class="collapse navbar-collapse" id="mainNav">
+        <!-- voci centrali di navigazione (mx-auto) -->
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item"><a class="nav-link" href="../index.html" data-i18n="nav.home">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html" data-i18n="nav.about">Chi siamo</a></li>
+          <li class="nav-item"><a class="nav-link" href="report.html" data-i18n="nav.report">Report</a></li>
+        </ul>
+
+        <!-- Ricerca interna: su questa pagina ricarico con query; il role aiuta l’accessibilità -->
+        <form class="d-flex me-3" role="search" id="siteSearchForm">
+          <div class="input-group">
+            <!-- data-i18n-placeholder mi fa tradurre il placeholder da i18n.js -->
+            <input class="form-control" type="search" placeholder="Cerca report…" aria-label="Cerca" name="q" data-i18n-placeholder="nav.search">
+            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+          </div>
+        </form>
+
+        <!-- selettore lingua: etichetta nascosta ma presente per screen reader -->
+        <div class="ms-lg-2">
+          <label class="visually-hidden" for="langSelect" data-i18n="nav.langlabel">Lingua</label>
+          <select id="langSelect" class="form-select form-select-sm" style="min-width:90px">
+            <option value="it">🇮🇹 IT</option>
+            <option value="en">🇬🇧 EN</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN: contenuto principale -->
+  <main>
+    <!-- Sezione filtro + elenco report
+         Non c’è backend: filtro lato client via JS.
+         Uso data-year e data-title per i criteri (JS legge questi attributi). -->
+    <section class="section section-alt">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-10">
+
+            <!-- Header della sezione con titolo e piccoli controlli di filtro -->
+            <div class="d-flex flex-wrap gap-3 align-items-end justify-content-between mb-4">
+              <div>
+                <h2 class="display-6 mb-2" data-i18n="report.title">Tutti i report</h2>
+                <p class="text-muted mb-0" data-i18n="report.hint">Cerca nel titolo. I link indicano formato e dimensione.</p>
+              </div>
+
+              <div class="d-flex gap-2 flex-wrap">
+                <!-- Ricerca testuale sul titolo: filtro in tempo reale (JS) su data-title -->
+                <div class="input-group" style="width: 200px;">
+                  <input id="filterText" class="form-control" placeholder="Cerca…" aria-label="Cerca"/>
+                  <!-- Pulsante per pulire rapidamente i filtri (immediato, no submit) -->
+                  <button id="clearFilters" class="btn btn-outline-secondary" type="button" title="Pulisci filtri">
+                    <i class="bi bi-x"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Elenco report
+                 Ogni card ha data-year e data-title; report.js filtra senza ricaricare pagina -->
+            <div id="reportList" class="row g-4">
+              <!-- Nota: elenco replicato dalla home per consistenza visiva -->
+
+              <!-- 2024 Report - Latest -->
+              <div class="col-12 col-md-6 col-xl-4 report-item" data-year="2024" data-title="Dichiarazione consolidata 2024">
+                <div class="card h-100">
+                  <div class="card-body d-flex flex-column">
+                    <!-- badge “Nuovo” + metadato Anno a destra -->
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                      <span class="badge bg-primary" data-i18n="report.badge.new">Nuovo</span>
+                      <div class="small text-muted">
+                        <i class="bi bi-calendar3"></i>
+                        <span data-i18n="report.year">Anno</span>: <strong>2024</strong>
+                      </div>
+                    </div>
+                    <!-- titolo + breve descrizione -->
+                    <h3 class="h5 mb-2" data-i18n="report.item1.title">Dichiarazione consolidata 2024</h3>
+                    <p class="text-muted small mb-3" data-i18n="report.item1.text">Allineata agli ESRS. Sintesi performance clima, acqua, sicurezza.</p>
+
+                    <!-- tag di formato/lingua/pagine -->
+                    <div class="d-flex gap-2 flex-wrap mb-3">
+                      <span class="badge text-bg-light border"><i class="bi bi-filetype-pdf"></i> PDF</span>
+                      <span class="badge text-bg-light border"><i class="bi bi-flag-fill text-success"></i> IT</span>
+                      <span class="badge text-bg-light border">142 pp</span>
+                    </div>
+
+                    <!-- call-to-action di download: apro in nuova scheda, sicuro con noopener/noreferrer -->
+                    <div class="d-grid mt-auto">
+                      <a class="btn btn-primary" href="../assets/reports/2024.pdf" target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-download me-2"></i>
+                        <span data-i18n="report.download">Scarica</span> (4,1 MB)
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2023 Report -->
+              <div class="col-12 col-md-6 col-xl-4 report-item" data-year="2023" data-title="Report di sostenibilità 2023">
+                <div class="card h-100">
+                  <div class="card-body d-flex flex-column">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                      <span class="badge text-bg-secondary">Report</span>
+                      <div class="small text-muted">
+                        <i class="bi bi-calendar3"></i>
+                        <span data-i18n="report.year">Anno</span>: <strong>2023</strong>
+                      </div>
+                    </div>
+                    <h3 class="h5 mb-2" data-i18n="report.item2.title">Report di sostenibilità 2023</h3>
+                    <p class="text-muted small mb-3" data-i18n="report.item2.text">Progressi su energia rinnovabile e supply chain.</p>
+                    <div class="d-flex gap-2 flex-wrap mb-3">
+                      <span class="badge text-bg-light border"><i class="bi bi-filetype-pdf"></i> PDF</span>
+                      <span class="badge text-bg-light border"><i class="bi bi-flag-fill text-success"></i> IT</span>
+                      <span class="badge text-bg-light border">120 pp</span>
+                    </div>
+                    <div class="d-grid mt-auto">
+                      <a class="btn btn-primary" href="../assets/reports/2023.pdf" target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-download me-2"></i>
+                        <span data-i18n="report.download">Scarica</span> (4,7 MB)
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2022 Report -->
+              <div class="col-12 col-md-6 col-xl-4 report-item" data-year="2022" data-title="Report di sostenibilità 2022">
+                <div class="card h-100">
+                  <div class="card-body d-flex flex-column">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                      <span class="badge text-bg-secondary">Report</span>
+                      <div class="small text-muted">
+                        <i class="bi bi-calendar3"></i>
+                        <span data-i18n="report.year">Anno</span>: <strong>2022</strong>
+                      </div>
+                    </div>
+                    <h3 class="h5 mb-2" data-i18n="report.item3.title">Report di sostenibilità 2022</h3>
+                    <p class="text-muted small mb-3" data-i18n="report.item3.text">Aggiornamento materialità e target 2025.</p>
+                    <div class="d-flex gap-2 flex-wrap mb-3">
+                      <span class="badge text-bg-light border"><i class="bi bi-filetype-pdf"></i> PDF</span>
+                      <span class="badge text-bg-light border"><i class="bi bi-flag-fill text-primary"></i> EN</span>
+                      <span class="badge text-bg-light border">102 pp</span>
+                    </div>
+                    <div class="d-grid mt-auto">
+                      <a class="btn btn-primary" href="../assets/reports/2022.pdf" target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-download me-2"></i>
+                        <span data-i18n="report.download">Scarica</span> (3,4 MB)
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2021 Report -->
+              <div class="col-12 col-md-6 col-xl-4 report-item" data-year="2021" data-title="Report di sostenibilità 2021">
+                <div class="card h-100">
+                  <div class="card-body d-flex flex-column">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                      <span class="badge text-bg-secondary">Report</span>
+                      <div class="small text-muted">
+                        <i class="bi bi-calendar3"></i>
+                        <span data-i18n="report.year">Anno</span>: <strong>2021</strong>
+                      </div>
+                    </div>
+                    <h3 class="h5 mb-2" data-i18n="report.item4.title">Report di sostenibilità 2021</h3>
+                    <p class="text-muted small mb-3" data-i18n="report.item4.text">Focus su riduzione emissioni e biodiversità.</p>
+                    <div class="d-flex gap-2 flex-wrap mb-3">
+                      <span class="badge text-bg-light border"><i class="bi bi-filetype-pdf"></i> PDF</span>
+                      <span class="badge text-bg-light border"><i class="bi bi-flag-fill text-success"></i> IT/EN</span>
+                      <span class="badge text-bg-light border">98 pp</span>
+                    </div>
+                    <div class="d-grid mt-auto">
+                      <a class="btn btn-primary" href="../assets/reports/2021.pdf" target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-download me-2"></i>
+                        <span data-i18n="report.download">Scarica</span> (2,0 MB)
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2020 Report -->
+              <div class="col-12 col-md-6 col-xl-4 report-item" data-year="2020" data-title="Report di sostenibilità 2020">
+                <div class="card h-100">
+                  <div class="card-body d-flex flex-column">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                      <span class="badge text-bg-secondary">Report</span>
+                      <div class="small text-muted">
+                        <i class="bi bi-calendar3"></i>
+                        <span data-i18n="report.year">Anno</span>: <strong>2020</strong>
+                      </div>
+                    </div>
+                    <h3 class="h5 mb-2" data-i18n="report.item5.title">Report di sostenibilità 2020</h3>
+                    <p class="text-muted small mb-3" data-i18n="report.item5.text">Resilienza durante la pandemia e sostenibilità.</p>
+                    <div class="d-flex gap-2 flex-wrap mb-3">
+                      <span class="badge text-bg-light border"><i class="bi bi-filetype-pdf"></i> PDF</span>
+                      <span class="badge text-bg-light border"><i class="bi bi-flag-fill text-primary"></i> EN</span>
+                      <span class="badge text-bg-light border">94 pp</span>
+                    </div>
+                    <div class="d-grid mt-auto">
+                      <a class="btn btn-primary" href="../assets/reports/2020.pdf" target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-download me-2"></i>
+                        <span data-i18n="report.download">Scarica</span> (2,4 MB)
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2019 Report -->
+              <div class="col-12 col-md-6 col-xl-4 report-item" data-year="2019" data-title="Report di sostenibilità 2019">
+                <div class="card h-100">
+                  <div class="card-body d-flex flex-column">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                      <span class="badge text-bg-secondary">Report</span>
+                      <div class="small text-muted">
+                        <i class="bi bi-calendar3"></i>
+                        <span data-i18n="report.year">Anno</span>: <strong>2019</strong>
+                      </div>
+                    </div>
+                    <h3 class="h5 mb-2" data-i18n="report.item6.title">Report di sostenibilità 2019</h3>
+                    <p class="text-muted small mb-3" data-i18n="report.item6.text">Espansione internazionale e sostenibilità.</p>
+                    <div class="d-flex gap-2 flex-wrap mb-3">
+                      <span class="badge text-bg-light border"><i class="bi bi-filetype-pdf"></i> PDF</span>
+                      <span class="badge text-bg-light border"><i class="bi bi-flag-fill text-success"></i> IT</span>
+                      <span class="badge text-bg-light border">88 pp</span>
+                    </div>
+                    <div class="d-grid mt-auto">
+                      <a class="btn btn-primary" href="../assets/reports/2019.pdf" target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-download me-2"></i>
+                        <span data-i18n="report.download">Scarica</span> (1,8 MB)
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2018 Report -->
+              <div class="col-12 col-md-6 col-xl-4 report-item" data-year="2018" data-title="Report di sostenibilità 2018">
+                <div class="card h-100">
+                  <div class="card-body d-flex flex-column">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                      <span class="badge text-bg-secondary">Report</span>
+                      <div class="small text-muted">
+                        <i class="bi bi-calendar3"></i>
+                        <span data-i18n="report.year">Anno</span>: <strong>2018</strong>
+                      </div>
+                    </div>
+                    <h3 class="h5 mb-2" data-i18n="report.item7.title">Report di sostenibilità 2018</h3>
+                    <p class="text-muted small mb-3" data-i18n="report.item7.text">Integrazione standard GRI e nuovi obiettivi.</p>
+                    <div class="d-flex gap-2 flex-wrap mb-3">
+                      <span class="badge text-bg-light border"><i class="bi bi-filetype-pdf"></i> PDF</span>
+                      <span class="badge text-bg-light border"><i class="bi bi-flag-fill text-primary"></i> EN</span>
+                      <span class="badge text-bg-light border">82 pp</span>
+                    </div>
+                    <div class="d-grid mt-auto">
+                      <a class="btn btn-primary" href="../assets/reports/2018.pdf" target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-download me-2"></i>
+                        <span data-i18n="report.download">Scarica</span> (1,2 MB)
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2017 Report -->
+              <div class="col-12 col-md-6 col-xl-4 report-item" data-year="2017" data-title="Report di sostenibilità 2017">
+                <div class="card h-100">
+                  <div class="card-body d-flex flex-column">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                      <span class="badge text-bg-secondary">Report</span>
+                      <div class="small text-muted">
+                        <i class="bi bi-calendar3"></i>
+                        <span data-i18n="report.year">Anno</span>: <strong>2017</strong>
+                      </div>
+                    </div>
+                    <h3 class="h5 mb-2" data-i18n="report.item8.title">Report di sostenibilità 2017</h3>
+                    <p class="text-muted small mb-3" data-i18n="report.item8.text">Consolidamento approccio sostenibile.</p>
+                    <div class="d-flex gap-2 flex-wrap mb-3">
+                      <span class="badge text-bg-light border"><i class="bi bi-filetype-pdf"></i> PDF</span>
+                      <span class="badge text-bg-light border"><i class="bi bi-flag-fill text-success"></i> IT</span>
+                      <span class="badge text-bg-light border">76 pp</span>
+                    </div>
+                    <div class="d-grid mt-auto">
+                      <a class="btn btn-primary" href="../assets/reports/2017.pdf" target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-download me-2"></i>
+                        <span data-i18n="report.download">Scarica</span> (1,2 MB)
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2016 Report -->
+              <div class="col-12 col-md-6 col-xl-4 report-item" data-year="2016" data-title="Report di sostenibilità 2016">
+                <div class="card h-100">
+                  <div class="card-body d-flex flex-column">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                      <span class="badge text-bg-secondary">Report</span>
+                      <div class="small text-muted">
+                        <i class="bi bi-calendar3"></i>
+                        <span data-i18n="report.year">Anno</span>: <strong>2016</strong>
+                      </div>
+                    </div>
+                    <h3 class="h5 mb-2" data-i18n="report.item9.title">Report di sostenibilità 2016</h3>
+                    <p class="text-muted small mb-3" data-i18n="report.item9.text">Innovazione tecnologica e ambiente.</p>
+                    <div class="d-flex gap-2 flex-wrap mb-3">
+                      <span class="badge text-bg-light border"><i class="bi bi-filetype-pdf"></i> PDF</span>
+                      <span class="badge text-bg-light border"><i class="bi bi-flag-fill text-primary"></i> EN</span>
+                      <span class="badge text-bg-light border">72 pp</span>
+                    </div>
+                    <div class="d-grid mt-auto">
+                      <a class="btn btn-primary" href="../assets/reports/2016.pdf" target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-download me-2"></i>
+                        <span data-i18n="report.download">Scarica</span> (9,7 MB)
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2015 Report -->
+              <div class="col-12 col-md-6 col-xl-4 report-item" data-year="2015" data-title="Report di sostenibilità 2015">
+                <div class="card h-100">
+                  <div class="card-body d-flex flex-column">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                      <span class="badge text-bg-secondary">Report</span>
+                      <div class="small text-muted">
+                        <i class="bi bi-calendar3"></i>
+                        <span data-i18n="report.year">Anno</span>: <strong>2015</strong>
+                      </div>
+                    </div>
+                    <h3 class="h5 mb-2" data-i18n="report.item10.title">Report di sostenibilità 2015</h3>
+                    <p class="text-muted small mb-3" data-i18n="report.item10.text">Sviluppo strategia sostenibilità integrata.</p>
+                    <div class="d-flex gap-2 flex-wrap mb-3">
+                      <span class="badge text-bg-light border"><i class="bi bi-filetype-pdf"></i> PDF</span>
+                      <span class="badge text-bg-light border"><i class="bi bi-flag-fill text-success"></i> IT</span>
+                      <span class="badge text-bg-light border">68 pp</span>
+                    </div>
+                    <div class="d-grid mt-auto">
+                      <a class="btn btn-primary" href="../assets/reports/2015.pdf" target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-download me-2"></i>
+                        <span data-i18n="report.download">Scarica</span> (7,9 MB)
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2014 Report -->
+              <div class="col-12 col-md-6 col-xl-4 report-item" data-year="2014" data-title="Report di sostenibilità 2014">
+                <div class="card h-100">
+                  <div class="card-body d-flex flex-column">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                      <span class="badge text-bg-secondary">Report</span>
+                      <div class="small text-muted">
+                        <i class="bi bi-calendar3"></i>
+                        <span data-i18n="report.year">Anno</span>: <strong>2014</strong>
+                      </div>
+                    </div>
+                    <h3 class="h5 mb-2" data-i18n="report.item11.title">Report di sostenibilità 2014</h3>
+                    <p class="text-muted small mb-3" data-i18n="report.item11.text">Espansione mercati emergenti e CSR.</p>
+                    <div class="d-flex gap-2 flex-wrap mb-3">
+                      <span class="badge text-bg-light border"><i class="bi bi-filetype-pdf"></i> PDF</span>
+                      <span class="badge text-bg-light border"><i class="bi bi-flag-fill text-primary"></i> EN</span>
+                      <span class="badge text-bg-light border">64 pp</span>
+                    </div>
+                    <div class="d-grid mt-auto">
+                      <a class="btn btn-primary" href="../assets/reports/2014.pdf" target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-download me-2"></i>
+                        <span data-i18n="report.download">Scarica</span> (9,6 MB)
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2013 Report -->
+              <div class="col-12 col-md-6 col-xl-4 report-item" data-year="2013" data-title="Report di sostenibilità 2013">
+                <div class="card h-100">
+                  <div class="card-body d-flex flex-column">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                      <span class="badge text-bg-secondary">Report</span>
+                      <div class="small text-muted">
+                        <i class="bi bi-calendar3"></i>
+                        <span data-i18n="report.year">Anno</span>: <strong>2013</strong>
+                      </div>
+                    </div>
+                    <h3 class="h5 mb-2" data-i18n="report.item12.title">Report di sostenibilità 2013</h3>
+                    <p class="text-muted small mb-3" data-i18n="report.item12.text">Prime iniziative strutturate di sostenibilità.</p>
+                    <div class="d-flex gap-2 flex-wrap mb-3">
+                      <span class="badge text-bg-light border"><i class="bi bi-filetype-pdf"></i> PDF</span>
+                      <span class="badge text-bg-light border"><i class="bi bi-flag-fill text-success"></i> IT</span>
+                      <span class="badge text-bg-light border">58 pp</span>
+                    </div>
+                    <div class="d-grid mt-auto">
+                      <a class="btn btn-primary" href="../assets/reports/2013.pdf" target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-download me-2"></i>
+                        <span data-i18n="report.download">Scarica</span> (4,6 MB)
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div> <!-- /#reportList -->
+
+            <!-- nota fonte: piccola info testuale con icona -->
+            <div class="text-center text-muted small mt-5">
+              <i class="bi bi-info-circle me-1"></i>
+              <span data-i18n="report.source">Fonte: Sito ufficiale dell'azienda. I file sono collegamenti diretti a PDF.</span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER: identico alla pagina About per coerenza
+       colonna sinistra: logo + note; colonna destra: contatti e social -->
+  <footer class="py-5" id="mainFooter">
+    <div class="container">
+      <div class="row">
+
+        <div class="col-md-6">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <img src="../assets/webuildcover.svg.png" alt="Webuild" width="100" height="30" style="object-fit:contain"/>
+          </div>
+          <p class="text-muted small mb-3" data-i18n="footer.copyright">© 2025 Webuild S.p.A. - Tutti i diritti riservati</p>
+          <p class="text-muted small" data-i18n="footer.tagline">Sito demo per report di sostenibilità</p>
+        </div>
+
+        <div class="col-md-6">
+          <div class="row">
+
+            <div class="col-6">
+              <h6 class="fw-semibold mb-2" data-i18n="footer.contact">Contatti</h6>
+              <ul class="list-unstyled small">
+                <!-- mailto: comodo per aprire client posta -->
+                <li class="mb-1">
+                  <a href="mailto:flavio.gezzi@gmail.com" class="link-primary text-decoration-none">
+                    <i class="bi bi-envelope me-1"></i>
+                    flavio.gezzi@gmail.com
+                  </a>
+                </li>
+                <!-- tel: utile su smartphone per chiamata diretta -->
+                <li class="mb-1">
+                  <a href="tel:+39 3482724284" class="link-primary text-decoration-none">
+                    <i class="bi bi-telephone me-1"></i>
+                    +39 3482724284
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div class="col-6">
+              <h6 class="fw-semibold mb-2" data-i18n="footer.social">Social</h6>
+              <div class="d-flex gap-2">
+                <!-- target=_blank con rel=noopener per sicurezza; aria-label descrive la destinazione -->
+                <a href="https://twitter.com/Webuild_Group" target="_blank" rel="noopener" class="text-muted" aria-label="Twitter">
+                  <i class="bi bi-twitter"></i>
+                </a>
+                <a href="https://www.youtube.com/@WebuildSpA" target="_blank" rel="noopener" class="text-muted" aria-label="YouTube">
+                  <i class="bi bi-youtube"></i>
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </footer>
+
+  <!-- Script a fine body per non bloccare il rendering:
+       - Bootstrap bundle (con Popper)
+       - utils.js: helper generici
+       - i18n.js: sostituzione delle stringhe data-i18n
+       - common.js: logiche condivise (navbar attiva, scroll-to-top, ecc.)
+       - report.js: filtro client-side su data-year/data-title -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/i18n.js"></script>
+  <script src="../js/common.js"></script>
+</body>
+</html>
